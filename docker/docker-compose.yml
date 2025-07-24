@@ -1,4 +1,5 @@
 services:
+  # Linera storage layer - via ScyllaDB
   scylla:
     image: scylladb/scylla:6.1.3
     container_name: scylla
@@ -11,6 +12,29 @@ services:
       - "0"
       - "--overprovisioned"
       - "1"
+
+  # Linera components
+  shard-init:
+    image: "${LINERA_IMAGE:-linera}"
+    container_name: shard-init
+    command: [ "./compose-server-init.sh" ]
+    volumes:
+      - .:/config
+    depends_on:
+      - scylla
+
+  shard:
+    image: "${LINERA_IMAGE:-linera}"
+    deploy:
+      replicas: 4
+    command: [ "./compose-server-entrypoint.sh" ]
+    volumes:
+      - .:/config
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"
+    depends_on:
+      shard-init:
+        condition: service_completed_successfully
 
   proxy:
     image: "${LINERA_IMAGE:-linera}"
@@ -26,28 +50,6 @@ services:
       shard-init:
         condition: service_completed_successfully
 
-  shard:
-    image: "${LINERA_IMAGE:-linera}"
-    deploy:
-      replicas: 4
-    command: [ "./compose-server-entrypoint.sh" ]
-    volumes:
-      - .:/config
-    labels:
-      com.centurylinklabs.watchtower.enable: "true"
-    depends_on:
-      shard-init:
-        condition: service_completed_successfully
-
-  shard-init:
-    image: "${LINERA_IMAGE:-linera}"
-    container_name: shard-init
-    command: [ "./compose-server-init.sh" ]
-    volumes:
-      - .:/config
-    depends_on:
-      - scylla
-
   exporter:
     image: "${LINERA_IMAGE:-linera}"
     command: [ "./compose-exporter-entrypoint.sh" ]
@@ -59,6 +61,7 @@ services:
       shard-init:
         condition: service_completed_successfully
 
+  # external utils
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
