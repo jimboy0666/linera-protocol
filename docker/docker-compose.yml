@@ -50,12 +50,7 @@ services:
 
   exporter:
     image: "${LINERA_IMAGE:-linera}"
-    command: [
-      "./linera-exporter",
-      "--config_path", "exporter-config.toml",
-      "--storage", "scylladb:tcp:scylla:9042",
-      "--genesis", "/config/genesis.json"
-    ]
+    command: [ "./compose-exporter-entrypoint.sh" ]
     volumes:
       - .:/config
     labels:
