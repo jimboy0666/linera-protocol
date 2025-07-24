@@ -114,5 +114,6 @@ COPY --chmod=755 \
     docker/proxy-init.sh \
     docker/compose-server-entrypoint.sh \
     docker/compose-proxy-entrypoint.sh \
+    docker/compose-exporter-entrypoint.sh \
     docker/compose-server-init.sh \
     ./
