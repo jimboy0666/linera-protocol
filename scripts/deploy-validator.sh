@@ -41,7 +41,7 @@ if [ -n "$2" ]; then
 fi
 
 # Get the current branch name and replace underscores with dashes
-BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+BRANCH_NAME="$(git rev-parse --abbrev-ref HEAD)"
 FORMATTED_BRANCH_NAME="${BRANCH_NAME//_/-}"
 GIT_COMMIT=$(git rev-parse --short HEAD)
 
