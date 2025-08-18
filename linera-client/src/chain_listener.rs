@@ -323,6 +323,7 @@ impl<C: ClientContext> ChainListener<C> {
     /// Starts listening for notifications about the given chain.
     ///
     /// Returns all publishing chains, that we also need to listen to.
+    #[instrument(name = "mother_listen", level = "trace", skip_all)]
     async fn listen(&mut self, chain_id: ChainId) -> Result<BTreeSet<ChainId>, Error> {
         if self.listening.contains_key(&chain_id) {
             return Ok(BTreeSet::new());

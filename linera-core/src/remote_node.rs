@@ -35,6 +35,7 @@ pub struct RemoteNode<N> {
 }
 
 impl<N: ValidatorNode> RemoteNode<N> {
+    #[instrument(level = "trace", skip(self, query))]
     pub(crate) async fn handle_chain_info_query(
         &self,
         query: ChainInfoQuery,
@@ -54,6 +55,7 @@ impl<N: ValidatorNode> RemoteNode<N> {
         self.check_and_return_info(response, chain_id)
     }
 
+    #[instrument(level = "trace", skip(self, certificate))]
     pub(crate) async fn handle_timeout_certificate(
         &self,
         certificate: TimeoutCertificate,

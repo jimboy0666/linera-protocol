@@ -23,7 +23,7 @@ use linera_persistent::{Persist, PersistExt as _};
 use linera_rpc::node_provider::{NodeOptions, NodeProvider};
 use linera_version::VersionInfo;
 use thiserror_context::Context;
-use tracing::{debug, info};
+use tracing::{debug, info, instrument};
 #[cfg(not(web))]
 use {
     crate::{
@@ -324,6 +324,7 @@ impl<Env: Environment, W: Persist<Target = Wallet>> ClientContext<Env, W> {
         Ok(())
     }
 
+    #[instrument(level = "trace", skip_all)]
     pub async fn process_inbox(
         &mut self,
         chain_client: &ChainClient<Env>,

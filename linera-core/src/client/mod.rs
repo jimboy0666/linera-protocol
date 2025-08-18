@@ -1916,7 +1916,7 @@ impl<Env: Environment> ChainClient<Env> {
 
     /// Prepares the chain for the next operation, i.e. makes sure we have synchronized it up to
     /// its current height and are not missing any received messages from the inbox.
-    #[instrument(level = "trace")]
+    #[instrument(level = "trace", skip(self))]
     pub async fn prepare_chain(&self) -> Result<Box<ChainInfo>, ChainClientError> {
         #[cfg(with_metrics)]
         let _latency = metrics::PREPARE_CHAIN_LATENCY.measure_latency();
@@ -1952,6 +1952,7 @@ impl<Env: Environment> ChainClient<Env> {
     // known block height. Otherwise, downloads the missing history from the
     // network.
     // The known height only differs if the wallet is ahead of storage.
+    #[instrument(level = "trace", skip(self))]
     async fn synchronize_to_known_height(&self) -> Result<Box<ChainInfo>, ChainClientError> {
         let info = self
             .client
@@ -2154,6 +2155,7 @@ impl<Env: Environment> ChainClient<Env> {
 
     /// Synchronizes all chains that any application on this chain subscribes to.
     /// We always consider the admin chain a relevant publishing chain, for new epochs.
+    #[instrument(level = "trace", skip(self))]
     async fn synchronize_publisher_chains(&self) -> Result<(), ChainClientError> {
         let chain_ids = self
             .chain_state_view()
