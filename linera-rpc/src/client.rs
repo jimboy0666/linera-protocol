@@ -237,6 +237,9 @@ impl ValidatorNode for Client {
         &self,
         hashes: Vec<CryptoHash>,
     ) -> Result<Vec<ConfirmedBlockCertificate>, NodeError> {
+        if hashes.is_empty() {
+            return Ok(Vec::new());
+        }
         Ok(match self {
             Client::Grpc(grpc_client) => grpc_client.download_certificates(hashes).await?,
 
