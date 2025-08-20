@@ -20,9 +20,7 @@ jobs:
     - name: Clear up some space
       run: |
         sudo rm -rf /usr/share/dotnet
-        sudo rm -rf /opt/ghc
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        
     - name: Install Protoc
       uses: arduino/setup-protoc@v3
       with:
