@@ -92,7 +92,6 @@ where
         let context = OperationContext {
             chain_id,
             authenticated_signer: None,
-            authenticated_caller_id: None,
             height: application_description.block_height,
             round: None,
             timestamp: local_time,
@@ -132,6 +131,7 @@ where
             next_application_index,
             next_chain_index,
             None,
+            &[],
         );
         txn_tracker.add_created_blob(blob);
         self.run_user_action(

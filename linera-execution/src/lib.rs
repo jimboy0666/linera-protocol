@@ -41,7 +41,7 @@ use linera_base::{
     },
     doc_scalar, hex_debug, http,
     identifiers::{
-        Account, AccountOwner, ApplicationId, BlobId, BlobType, ChainId, EventId,
+        Account, AccountOwner, ApplicationId, BlobId, BlobType, ChainId, DataBlobHash, EventId,
         GenericApplicationId, ModuleId, StreamName,
     },
     ownership::ChainOwnership,
@@ -368,13 +368,13 @@ pub trait ExecutionRuntimeContext {
     async fn get_user_contract(
         &self,
         description: &ApplicationDescription,
-        created_blobs: &BTreeMap<BlobId, Blob>,
+        txn_tracker: &TransactionTracker,
     ) -> Result<UserContractCode, ExecutionError>;
 
     async fn get_user_service(
         &self,
         description: &ApplicationDescription,
-        created_blobs: &BTreeMap<BlobId, Blob>,
+        txn_tracker: &TransactionTracker,
     ) -> Result<UserServiceCode, ExecutionError>;
 
     async fn get_blob(&self, blob_id: BlobId) -> Result<Option<Blob>, ViewError>;
@@ -412,10 +412,6 @@ pub struct OperationContext {
     /// The authenticated signer of the operation, if any.
     #[debug(skip_if = Option::is_none)]
     pub authenticated_signer: Option<AccountOwner>,
-    /// `None` if this is the transaction entrypoint or the caller doesn't want this particular
-    /// call to be authenticated (e.g. for safety reasons).
-    #[debug(skip_if = Option::is_none)]
-    pub authenticated_caller_id: Option<ApplicationId>,
     /// The current block height.
     pub height: BlockHeight,
     /// The consensus round number, if this is a block that gets validated in a multi-leader round.
@@ -668,10 +664,10 @@ pub trait BaseRuntime {
     fn assert_before(&mut self, timestamp: Timestamp) -> Result<(), ExecutionError>;
 
     /// Reads a data blob specified by a given hash.
-    fn read_data_blob(&mut self, hash: &CryptoHash) -> Result<Vec<u8>, ExecutionError>;
+    fn read_data_blob(&mut self, hash: DataBlobHash) -> Result<Vec<u8>, ExecutionError>;
 
     /// Asserts the existence of a data blob with the given hash.
-    fn assert_data_blob_exists(&mut self, hash: &CryptoHash) -> Result<(), ExecutionError>;
+    fn assert_data_blob_exists(&mut self, hash: DataBlobHash) -> Result<(), ExecutionError>;
 }
 
 pub trait ServiceRuntime: BaseRuntime {
@@ -803,8 +799,8 @@ pub trait ContractRuntime: BaseRuntime {
         required_application_ids: Vec<ApplicationId>,
     ) -> Result<ApplicationId, ExecutionError>;
 
-    /// Creates a new data blob and returns its ID.
-    fn create_data_blob(&mut self, bytes: Vec<u8>) -> Result<BlobId, ExecutionError>;
+    /// Creates a new data blob and returns its hash.
+    fn create_data_blob(&mut self, bytes: Vec<u8>) -> Result<DataBlobHash, ExecutionError>;
 
     /// Publishes a module with contract and service bytecode and returns the module ID.
     fn publish_module(
@@ -1046,7 +1042,7 @@ impl ExecutionRuntimeContext for TestExecutionRuntimeContext {
     async fn get_user_contract(
         &self,
         description: &ApplicationDescription,
-        _created_blobs: &BTreeMap<BlobId, Blob>,
+        _txn_tracker: &TransactionTracker,
     ) -> Result<UserContractCode, ExecutionError> {
         let application_id = description.into();
         Ok(self
@@ -1061,7 +1057,7 @@ impl ExecutionRuntimeContext for TestExecutionRuntimeContext {
     async fn get_user_service(
         &self,
         description: &ApplicationDescription,
-        _created_blobs: &BTreeMap<BlobId, Blob>,
+        _txn_tracker: &TransactionTracker,
     ) -> Result<UserServiceCode, ExecutionError> {
         let application_id = description.into();
         Ok(self
