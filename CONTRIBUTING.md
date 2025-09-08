@@ -139,7 +139,6 @@ cargo build --release --target wasm32-unknown-unknown
 ```
 The Rust flags are suggested to reduce the size of the Wasm bytecode files.
 
-
 ## Platform-specific features
 
 Features that compile only on specific platforms are currently
