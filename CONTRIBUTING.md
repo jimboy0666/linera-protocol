@@ -34,8 +34,6 @@ Only commits in a PR accepted by at least one team member should be pushed to th
 Please also be sure to familiarize yourself with the rest of the guidelines below.
 
 
-## Naming conventions
-
 As usual in Rust, type names (struct, enum, traits) are compound words in [camel
 case](https://en.wikipedia.org/wiki/Camel_case), e.g. `GarageDoorOption`.
 
